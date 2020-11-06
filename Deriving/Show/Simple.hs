@@ -6,7 +6,12 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
-module Deriving.Show.Simple (showsPrecSimple, WrapSimple(..)) where
+module Deriving.Show.Simple
+  ( showsPrecSimple
+  , showSimple
+  , WrapSimple(..)
+  , GShowSimple
+  ) where
 
 import Data.Proxy
 import Data.List (intersperse)
@@ -19,6 +24,11 @@ showsPrecSimple p a = case shows' (from a) of
   [x] -> x
   xs -> showParen (p > 10) $ foldr (.) id
     $ intersperse (showChar ' ') xs
+
+-- | Like 'show', but shows it as if their record fields are stripped
+showSimple :: (Generic a, GShowSimple (Rep a)) => a -> String
+showSimple = show . WrapSimple
+{-# INLINABLE showSimple #-}
 
 class GShowSimple f where
   shows' :: f x -> [ShowS]
